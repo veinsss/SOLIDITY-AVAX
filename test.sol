@@ -1,36 +1,38 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract errorHandling
-{
-    uint public number = 100;
-    address public owner;
-
-    constructor()
-    {
-        owner = msg.sender;
+contract SchoolCafeteria {
+    address public cafeteriaManager;
+    uint public lunchPrice = 5;  
+    uint public totalMealsToday;
+    
+    mapping(address => uint) public mealTokens;
+    
+    constructor() {
+        cafeteriaManager = msg.sender;
     }
-
-    function setNumber(uint _newNumber) public
-    {
-        require(_newNumber > 0, "Number must be Positive");
-        number = _newNumber;
+    
+    function addBalance(uint _amount) public {
+        require(_amount > 0, "Amount must be greater than 0");
+        mealTokens[msg.sender] += _amount;
     }
-
-    function reduceNumber(uint _amount) public
-    {
-        assert(_amount <= number);
-        number -= _amount;
+    
+    function getLunch() public {
+        require(mealTokens[msg.sender] >= lunchPrice, "Not enough tokens for lunch");
+        assert(totalMealsToday + 1 > totalMealsToday);
+        
+        mealTokens[msg.sender] -= lunchPrice;
+        totalMealsToday += 1;
     }
-
-    function resetNumber() public
-    {
-        if(msg.sender != owner)
-        {
-            revert("Only ownwer can reset");
+    
+    function changeLunchPrice(uint _newPrice) public {
+        if(msg.sender != cafeteriaManager) {
+            revert("Only manager can change price");
         }
-        number = 100;
-
+        lunchPrice = _newPrice;
     }
-
+    
+    function checkTokens() public view returns(uint) {
+        return mealTokens[msg.sender];
+    }
 }
