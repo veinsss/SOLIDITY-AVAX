@@ -2,11 +2,14 @@
 pragma solidity ^0.8.0;
 
 contract SchoolCafeteria {
+    
     address public cafeteriaManager;
+    
+    bool public lunchAvailability = false;  
+    uint public studentTokens; 
     uint public lunchPrice = 5;  
     uint public totalMealsToday;
     
-    mapping(address => uint) public mealTokens;
     
     constructor() {
         cafeteriaManager = msg.sender;
@@ -14,17 +17,32 @@ contract SchoolCafeteria {
     
     function addBalance(uint _amount) public {
         require(_amount > 0, "Amount must be greater than 0");
-        mealTokens[msg.sender] += _amount;
+        studentTokens += _amount;
     }
     
+ 
+
     function getLunch() public {
-        require(mealTokens[msg.sender] >= lunchPrice, "Not enough tokens for lunch");
-        assert(totalMealsToday + 1 > totalMealsToday);
+
+        if (lunchAvailability == true)
+        {
+            require(studentTokens >= lunchPrice, "Not enough tokens for lunch");
+            assert(totalMealsToday + 1 > totalMealsToday);
+            studentTokens -= lunchPrice;
+            totalMealsToday += 1;
         
-        mealTokens[msg.sender] -= lunchPrice;
-        totalMealsToday += 1;
+        }
+        else
+        {
+            revert("It is not lunch time yet");
+        }
     }
     
+    function isLunchAvailable() public {
+        lunchAvailability = !lunchAvailability; 
+    }
+
+
     function changeLunchPrice(uint _newPrice) public {
         if(msg.sender != cafeteriaManager) {
             revert("Only manager can change price");
@@ -32,7 +50,5 @@ contract SchoolCafeteria {
         lunchPrice = _newPrice;
     }
     
-    function checkTokens() public view returns(uint) {
-        return mealTokens[msg.sender];
-    }
+
 }
